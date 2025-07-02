@@ -2,6 +2,7 @@
 
 import React from "react"
 import { BookOpen, Menu } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -16,23 +17,23 @@ import { ThemeToggle } from "./theme-toggle"
 
 const navigationItems = [
   { href: "/books", label: "All Books" },
-  { href: "#create-book", label: "Add Book" },
-  { href: "#borrow-summary", label: "Borrow Summary" },
+  { href: "/create-book", label: "Add Book" },
+  { href: "/borrow-summary", label: "Borrow Summary" },
 ]
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [activeItem, setActiveItem] = React.useState("#books")
+  const location = useLocation()
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center space-x-2 text-xl font-bold transition-colors hover:text-primary">
+          <Link to="/" className="flex items-center space-x-2 text-xl font-bold transition-colors hover:text-primary">
             <BookOpen className="h-6 w-6" />
             <span>Library</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <NavigationMenu className="hidden md:flex">
@@ -40,19 +41,15 @@ const Navbar: React.FC = () => {
               {navigationItems.map((item) => (
                 <NavigationMenuItem key={item.href}>
                   <NavigationMenuLink asChild>
-                    <a
-                      href={item.href}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setActiveItem(item.href)
-                      }}
+                    <Link
+                      to={item.href}
                       className={cn(
                         "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                        activeItem === item.href && "bg-accent text-accent-foreground",
+                        location.pathname === item.href && "bg-accent text-accent-foreground",
                       )}
                     >
                       {item.label}
-                    </a>
+                    </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
@@ -80,21 +77,17 @@ const Navbar: React.FC = () => {
                 </SheetHeader>
                 <div className="mt-6 flex flex-col space-y-3">
                   {navigationItems.map((item) => (
-                    <a
+                    <Link
                       key={item.href}
-                      href={item.href}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setActiveItem(item.href)
-                        setIsOpen(false)
-                      }}
+                      to={item.href}
+                      onClick={() => setIsOpen(false)}
                       className={cn(
                         "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                        activeItem === item.href && "bg-accent text-accent-foreground",
+                        location.pathname === item.href && "bg-accent text-accent-foreground",
                       )}
                     >
                       {item.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </SheetContent>

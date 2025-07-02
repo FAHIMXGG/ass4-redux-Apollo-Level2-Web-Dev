@@ -41,7 +41,13 @@ export interface Borrow {
 
 export const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://fahimxgg-l2-ass-3-db.vercel.app/api' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://fahimxgg-l2-ass-3-db.vercel.app/api',
+    prepareHeaders: (headers) => {
+      headers.set('Content-Type', 'application/json');
+      return headers;
+    },
+  }),
   tagTypes: ['Books', 'Borrows'], 
   endpoints: (builder) => ({
     getBooks: builder.query<BookResponse, { limit?: number } | void>({
@@ -56,7 +62,7 @@ export const api = createApi({
     }),
     getBookById: builder.query<Book, string>({
       query: (id) => `/books/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Books', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Books', id }],
     }),
     createBook: builder.mutation<Book, Partial<Book>>({
       query: (newBook) => ({
@@ -72,14 +78,14 @@ export const api = createApi({
         method: 'PATCH',
         body: patch,
       }),
-      invalidatesTags: (result, error, { _id }) => [{ type: 'Books', id: _id }, { type: 'Books', id: 'LIST' }],
+      invalidatesTags: (_result, _error, { _id }) => [{ type: 'Books', id: _id }, { type: 'Books', id: 'LIST' }],
     }),
     deleteBook: builder.mutation<{ message: string }, string>({
       query: (id) => ({
         url: `/books/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Books', id }, { type: 'Books', id: 'LIST' }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'Books', id }, { type: 'Books', id: 'LIST' }],
     }),
 
     borrowBook: builder.mutation<{ message: string; borrow: Borrow; updatedBookDetails: Partial<Book> }, { bookId: string; quantity: number; dueDate: string }>({
