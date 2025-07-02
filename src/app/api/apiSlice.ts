@@ -10,16 +10,15 @@ export interface Book {
   description?: string;
   copies: number;
   availableCopies: number;
-  isAvailable: boolean;
+  available: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BookResponse {
+  success: boolean;
+  message: string;
   data: Book[];
-  currentPage: number;
-  totalPages: number;
-  totalBooks: number;
 }
 
 export interface BorrowSummaryItem {
@@ -42,11 +41,11 @@ export interface Borrow {
 
 export const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api' }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://fahimxgg-l2-ass-3-db.vercel.app/api' }),
   tagTypes: ['Books', 'Borrows'], 
   endpoints: (builder) => ({
-    getBooks: builder.query<BookResponse, { page?: number; limit?: number } | void>({
-      query: ({ page = 1, limit = 10 } = {}) => `/books?page=${page}&limit=${limit}`,
+    getBooks: builder.query<BookResponse, { limit?: number } | void>({
+      query: ({ limit } = {}) => `/books${limit ? `?limit=${limit}` : ''}`,
       providesTags: (result) =>
         result
           ? [
@@ -97,7 +96,7 @@ export const api = createApi({
             const bookToUpdate = draft.data.find((book) => book._id === bookId);
             if (bookToUpdate) {
               bookToUpdate.availableCopies -= quantity;
-              bookToUpdate.isAvailable = bookToUpdate.availableCopies > 0;
+              bookToUpdate.available = bookToUpdate.availableCopies > 0;
             }
           })
         );
