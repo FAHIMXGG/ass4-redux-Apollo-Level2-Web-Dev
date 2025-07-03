@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { BookCardSkeleton } from "@/components/skeletons"
 import { useBorrowBookMutation, useGetBookByIdQuery } from '@/app/api/apiSlice'
 
 // Base Zod schema for borrow form validation
@@ -137,21 +137,7 @@ const BorrowBook: React.FC = () => {
         </CardHeader>
         <CardContent>
           {isBookLoading ? (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <Skeleton className="h-10 w-full" />
-            </div>
+            <BookCardSkeleton />
           ) : isBookError ? (
             <div className="text-center py-8">
               <p className="text-destructive">Error loading book. Please try again.</p>

@@ -6,6 +6,7 @@ import CreateBook from "./pages/CreateBook";
 import BorrowSummary from "./pages/BorrowSummary";
 import EditBook from "./pages/EditBook";
 import BorrowBook from "./pages/BorrowBook";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/borrow-summary" element={<BorrowSummary />} />
           <Route path="/edit-book/:id" element={<EditBook/>} />
           <Route path="/borrow/:bookId" element={<BorrowBook />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />

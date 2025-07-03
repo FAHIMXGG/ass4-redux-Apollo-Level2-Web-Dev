@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -24,7 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Skeleton } from "@/components/ui/skeleton"
+import { BookListSkeleton } from "@/components/skeletons"
 
 
 interface Book {
@@ -64,25 +62,7 @@ const BookList: React.FC = () => {
   }
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Library Books</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex space-x-4">
-                <Skeleton className="h-4 w-[200px]" />
-                <Skeleton className="h-4 w-[150px]" />
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-[120px]" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    )
+    return <BookListSkeleton itemsToShow={itemsToShow} />
   }
 
   if (isError) {

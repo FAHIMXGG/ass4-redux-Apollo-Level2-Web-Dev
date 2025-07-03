@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
+import { BookCardSkeleton } from '@/components/skeletons'
 
 // Zod schema for edit form validation
 const bookEditSchema = z.object({
@@ -135,23 +135,7 @@ export default function EditBook() {
   if (isBookLoading) {
     return (
       <div className="w-full max-w-2xl mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-8 w-8" />
-              <Skeleton className="h-8 w-48" />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            ))}
-            <Skeleton className="h-10 w-full" />
-          </CardContent>
-        </Card>
+        <BookCardSkeleton />
       </div>
     )
   }
