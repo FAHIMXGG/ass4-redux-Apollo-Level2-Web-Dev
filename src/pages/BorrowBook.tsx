@@ -1,283 +1,304 @@
 "use client"
 
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate, useParams } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { ArrowLeft, BookOpen, Calendar, Hash, User } from 'lucide-react'
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
-import { useGetBorrowSummaryQuery, type BorrowSummaryItem } from "@/app/api/apiSlice"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useBorrowBookMutation, useGetBookByIdQuery } from '@/app/api/apiSlice'
 
-export default function BorrowSummary() {
-  const { data, isLoading, isError, error } = useGetBorrowSummaryQuery()
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 5
+// Base Zod schema for borrow form validation
+const createBorrowSchema = (maxCopies: number) => z.object({
+  book: z.string().min(1, 'Please select a book'),
+  quantity: z.number()
+    .int('Quantity must be a whole number')
+    .min(1, 'Quantity must be at least 1')
+    .max(maxCopies, `Cannot borrow more than ${maxCopies} ${maxCopies === 1 ? 'copy' : 'copies'}`),
+  dueDate: z.string().min(1, 'Due date is required'),
+})
 
-  console.log("Borrow summary data:", data)
-  console.log("Data type:", typeof data)
-  console.log("Is array:", Array.isArray(data))
-  console.log("Data keys:", data ? Object.keys(data) : 'no data')
+type BorrowFormData = {
+  book: string
+  quantity: number
+  dueDate: string
+}
 
-  // Handle loading state
-  if (isLoading) {
-    return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Borrowed Books Summary</CardTitle>
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-semibold">Title</TableHead>
-                    <TableHead className="font-semibold">ISBN</TableHead>
-                    <TableHead className="font-semibold text-right">Total Quantity</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: itemsPerPage }).map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Skeleton className="h-4 w-48" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-4 w-32" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-6 w-8 rounded-full ml-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+const BorrowBook: React.FC = () => {
+  const { bookId } = useParams<{ bookId: string }>()
+  const navigate = useNavigate()
 
-            {/* Skeleton Pagination Controls */}
-            <div className="flex items-center justify-between space-x-2 py-4">
-              <Skeleton className="h-4 w-40" />
-              <div className="flex items-center space-x-2">
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-8 w-8" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  const { data: bookResponse, isLoading: isBookLoading, isError: isBookError,  } = useGetBookByIdQuery(bookId!)
+  console.log('Book data:', bookResponse)
+  const [borrowBook, { isLoading: isBorrowing }] = useBorrowBookMutation()
 
-  // Handle error state
-  if (isError) {
-    const errorMessage =
-      error && typeof error === "object" && "data" in error && error.data && typeof error.data === "object" && "message" in error.data
-        ? (error.data as { message: string }).message
-        : "Something went wrong";
+  // Get the specific book data
+  const currentBook = bookResponse?.data
+  console.log('Current book:', currentBook)
+  const maxCopies = currentBook?.copies || 1
+  console.log('Max copies:', maxCopies)
 
-    return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Borrowed Books Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <div className="text-red-500">Error loading data: {errorMessage}</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<BorrowFormData>({
+    resolver: zodResolver(createBorrowSchema(maxCopies)),
+    defaultValues: {
+      book: bookId || '',
+      quantity: 1,
+      dueDate: '',
+    }
+  })
 
-  // Extract books array from response - handle different response structures
-  let books: BorrowSummaryItem[] = [];
+  const selectedQuantity = watch('quantity')
 
-  if (data) {
-    if (Array.isArray(data)) {
-      books = data;
-      console.log("Using direct array data:", books);
-    } else if (typeof data === 'object' && data !== null) {
-      const dataObj = data as Record<string, unknown>;
-      console.log("Data object structure:", dataObj);
-      if (dataObj.data && Array.isArray(dataObj.data)) {
-        books = dataObj.data;
-        console.log("Using nested data array:", books);
+  // Set default due date to 2 weeks from now
+  React.useEffect(() => {
+    const twoWeeksFromNow = new Date()
+    twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14)
+    const defaultDueDate = twoWeeksFromNow.toISOString().split('T')[0]
+    setValue('dueDate', defaultDueDate)
+  }, [setValue])
+
+  // Update form validation when book data changes
+  React.useEffect(() => {
+    if (currentBook) {
+      // Reset form with new validation schema
+      reset({
+        book: bookId || '',
+        quantity: Math.min(selectedQuantity || 1, currentBook.copies),
+        dueDate: watch('dueDate'),
+      })
+    }
+  }, [currentBook, bookId, reset, selectedQuantity, watch])
+
+  const onSubmit = async (data: BorrowFormData) => {
+    try {
+      // Format the data according to your API specification
+      const borrowData = {
+        book: data.book,
+        quantity: data.quantity,
+        dueDate: new Date(data.dueDate).toISOString(),
       }
+
+      console.log('Borrowing book with data:', borrowData)
+
+      await borrowBook(borrowData).unwrap()
+      toast.success('Book borrowed successfully!')
+      navigate('/books')
+    } catch (err: unknown) {
+      console.error('Error borrowing book:', err)
+
+      const errorMessage =
+        err &&
+        typeof err === "object" &&
+        "data" in err &&
+        err.data &&
+        typeof err.data === "object" &&
+        "message" in err.data
+          ? (err.data as { message: string }).message
+          : err instanceof Error
+            ? err.message
+            : "Failed to borrow book"
+
+      toast.error(errorMessage)
     }
   }
 
-  console.log("Final books array:", books);
-  console.log("Books length:", books.length);
-  if (books.length > 0) {
-    console.log("First book item:", books[0]);
-  }
-
-  // Handle case where no books are found
-  if (!books || books.length === 0) {
-    return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Borrowed Books Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <div className="text-muted-foreground">No borrowed books found</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-  const totalPages = Math.ceil(books.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentBooks = books.slice(startIndex, endIndex)
-
-  console.log("Pagination info:", { totalPages, startIndex, endIndex, currentBooks })
-
-  const goToFirstPage = () => setCurrentPage(1)
-  const goToLastPage = () => setCurrentPage(totalPages)
-  const goToPreviousPage = () => setCurrentPage(Math.max(1, currentPage - 1))
-  const goToNextPage = () => setCurrentPage(Math.min(totalPages, currentPage + 1))
-
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
+    <div className="w-full max-w-2xl mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Borrowed Books Summary</CardTitle>
-          <p className="text-muted-foreground">Overview of all borrowed books</p>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-6 w-6" />
+            Borrow a Book
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/books')}
+            className="w-fit"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Books
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="font-semibold">Title</TableHead>
-                  <TableHead className="font-semibold">ISBN</TableHead>
-                  <TableHead className="font-semibold text-right">Total Quantity</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentBooks.length > 0 ? (
-                  currentBooks.map((item, index) => {
-                    console.log(`Rendering item ${index}:`, item);
-                    console.log(`Item properties:`, Object.keys(item));
-                    console.log(`Item JSON:`, JSON.stringify(item, null, 2));
-
-                    // Helper function to safely get property value, handling nested objects
-                    const getProp = (obj: unknown, ...keys: string[]): unknown => {
-                      for (const key of keys) {
-                        if (obj && typeof obj === 'object' && key in obj) {
-                          const value = (obj as Record<string, unknown>)[key];
-                          if (value != null) {
-                            return value;
-                          }
-                        }
-                      }
-                      return null;
-                    };
-
-                    // Helper to get nested property (e.g., book.title)
-                    const getNestedProp = (obj: unknown, path: string): unknown => {
-                      if (!obj || typeof obj !== 'object') return null;
-                      const keys = path.split('.');
-                      let current: unknown = obj;
-                      for (const key of keys) {
-                        if (current && typeof current === 'object' && key in current) {
-                          current = (current as Record<string, unknown>)[key];
-                        } else {
-                          return null;
-                        }
-                      }
-                      return current;
-                    };
-
-                    // Try different possible property names and handle nested objects
-                    let title = getProp(item, 'bookTitle', 'title') || getNestedProp(item, 'book.title');
-                    let isbn = getProp(item, 'bookISBN', 'isbn') || getNestedProp(item, 'book.isbn');
-                    let quantity = getProp(item, 'totalQuantityBorrowed', 'totalQuantity', 'quantity') || 0;
-
-                    // If we got objects, try to extract string values
-                    if (title && typeof title === 'object') {
-                      title = getProp(title, 'title', 'name', 'bookTitle') || 'Unknown Title';
-                    }
-                    if (isbn && typeof isbn === 'object') {
-                      isbn = getProp(isbn, 'isbn', 'bookISBN') || 'Unknown ISBN';
-                    }
-
-                    // Ensure we have fallback values
-                    title = title || 'Unknown Title';
-                    isbn = isbn || 'Unknown ISBN';
-                    quantity = quantity || 0;
-
-                    console.log(`Extracted values:`, { title, isbn, quantity });
-
-                    return (
-                      <TableRow key={String(getProp(item, 'bookISBN', 'isbn', 'bookId') || index)} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">
-                          {String(title)}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm text-muted-foreground">
-                          {String(isbn)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                            {Number(quantity)}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                      No data to display
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(endIndex, books.length)} of {books.length} books
+          {isBookLoading ? (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <Skeleton className="h-10 w-full" />
             </div>
+          ) : isBookError ? (
+            <div className="text-center py-8">
+              <p className="text-destructive">Error loading book. Please try again.</p>
+            </div>
+          ) : !currentBook ? (
+            <div className="text-center py-8">
+              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Book not found.</p>
+            </div>
+          ) : !currentBook.available || currentBook.copies === 0 ? (
+            <div className="text-center py-8">
+              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">This book is currently not available for borrowing.</p>
+              <div className="mt-4">
+                <Button onClick={() => navigate('/books')} variant="outline">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Books
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Book Info Display */}
+              <Card className="bg-muted/50">
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      <span className="font-medium text-lg">{currentBook.title}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span className="text-muted-foreground">by {currentBook.author}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Hash className="h-4 w-4" />
+                      <span className="text-sm text-muted-foreground">ISBN: {currentBook.isbn}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">
+                        {currentBook.copies} copies available
+                      </Badge>
+                      <Badge variant="secondary">
+                        {currentBook.genre}
+                      </Badge>
+                    </div>
+                    {currentBook.description && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {currentBook.description}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={goToFirstPage} disabled={currentPage === 1}>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-
-              <Button variant="outline" size="sm" onClick={goToPreviousPage} disabled={currentPage === 1}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <div className="flex items-center space-x-1">
-                <span className="text-sm font-medium">
-                  Page {currentPage} of {totalPages}
-                </span>
+              {/* Quantity Field */}
+              <div className="space-y-2">
+                <Label htmlFor="quantity">
+                  Quantity <span className="text-destructive">*</span>
+                  <span className="text-sm text-muted-foreground ml-2">
+                    (Max: {currentBook.copies})
+                  </span>
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newValue = Math.max(1, selectedQuantity - 1)
+                      setValue('quantity', newValue)
+                    }}
+                    disabled={selectedQuantity <= 1}
+                  >
+                    -
+                  </Button>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min="1"
+                    max={currentBook.copies}
+                    className="text-center"
+                    {...register('quantity', { valueAsNumber: true })}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newValue = Math.min(currentBook.copies, selectedQuantity + 1)
+                      setValue('quantity', newValue)
+                    }}
+                    disabled={selectedQuantity >= currentBook.copies}
+                  >
+                    +
+                  </Button>
+                </div>
+                {errors.quantity && (
+                  <p className="text-sm text-destructive">{errors.quantity.message}</p>
+                )}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>Available: {currentBook.copies} copies</span>
+                  <span>Selected: {selectedQuantity} {selectedQuantity === 1 ? 'copy' : 'copies'}</span>
+                </div>
               </div>
 
-              <Button variant="outline" size="sm" onClick={goToNextPage} disabled={currentPage === totalPages}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              {/* Due Date Field */}
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">
+                  Due Date <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    className="pl-10"
+                    min={new Date().toISOString().split('T')[0]}
+                    {...register('dueDate')}
+                  />
+                </div>
+                {errors.dueDate && (
+                  <p className="text-sm text-destructive">{errors.dueDate.message}</p>
+                )}
+              </div>
 
-              <Button variant="outline" size="sm" onClick={goToLastPage} disabled={currentPage === totalPages}>
-                <ChevronsRight className="h-4 w-4" />
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={
+                  isBorrowing ||
+                  !currentBook ||
+                  selectedQuantity < 1 ||
+                  selectedQuantity > currentBook.copies ||
+                  Object.keys(errors).length > 0
+                }
+                className="w-full"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                {isBorrowing ? 'Borrowing...' : `Borrow ${selectedQuantity} ${selectedQuantity === 1 ? 'Copy' : 'Copies'}`}
               </Button>
-            </div>
-          </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
+
+export default BorrowBook

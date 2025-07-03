@@ -41,6 +41,7 @@ const genres = [
 export default function EditBook() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  console.log('Book ID from URL:', id)
 
   const { data: book, isLoading: isBookLoading, isError: isBookError, error: bookError } = useGetBookByIdQuery(id!)
   console.log('Book data:', book)

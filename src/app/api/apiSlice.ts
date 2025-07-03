@@ -94,18 +94,18 @@ export const api = createApi({
       invalidatesTags: (_result, _error, id) => [{ type: 'Books', id }, { type: 'Books', id: 'LIST' }],
     }),
 
-    borrowBook: builder.mutation<{ message: string; borrow: Borrow; updatedBookDetails: Partial<Book> }, { bookId: string; quantity: number; dueDate: string }>({
+    borrowBook: builder.mutation<{ message: string; borrow: Borrow; updatedBookDetails: Partial<Book> }, { book: string; quantity: number; dueDate: string }>({
       query: (borrowDetails) => ({
-        url: '/borrows',
+        url: '/borrow',
         method: 'POST',
         body: borrowDetails,
       }),
-      
+
       invalidatesTags: [{ type: 'Books', id: 'LIST' }, { type: 'Borrows', id: 'SUMMARY' }],
-      async onQueryStarted({ bookId, quantity }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ book, quantity }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           api.util.updateQueryData('getBooks', undefined, (draft) => {
-            const bookToUpdate = draft.data.find((book) => book._id === bookId);
+            const bookToUpdate = draft.data.find((bookItem) => bookItem._id === book);
             if (bookToUpdate) {
               bookToUpdate.availableCopies -= quantity;
               bookToUpdate.available = bookToUpdate.availableCopies > 0;
