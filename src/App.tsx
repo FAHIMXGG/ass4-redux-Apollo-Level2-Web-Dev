@@ -3,6 +3,8 @@ import BookList from "./pages/BookList";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import CreateBook from "./pages/CreateBook";
+import BorrowSummary from "./pages/BorrowBook";
+import EditBook from "./pages/EditBook";
 
 function App() {
   return (
@@ -13,7 +15,8 @@ function App() {
           <Route path="/" element={<BookList />} />
           <Route path="/books" element={<BookList />} />
           <Route path="/create-book" element={<CreateBook />} />
-          <Route path="/borrow-summary" element={<div className="text-center py-8"><h1 className="text-2xl font-bold">Borrow Summary</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
+          <Route path="/borrow-summary" element={<BorrowSummary />} />
+          <Route path="/edit-book/:id" element={<EditBook/>} />
         </Routes>
       </main>
       <Footer />

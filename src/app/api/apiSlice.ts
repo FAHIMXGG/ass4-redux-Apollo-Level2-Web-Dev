@@ -21,6 +21,12 @@ export interface BookResponse {
   data: Book[];
 }
 
+export interface SingleBookResponse {
+  success: boolean;
+  message: string;
+  data: Book;
+}
+
 export interface BorrowSummaryItem {
   bookId: string;
   bookTitle: string;
@@ -60,7 +66,7 @@ export const api = createApi({
             ]
           : [{ type: 'Books', id: 'LIST' }],
     }),
-    getBookById: builder.query<Book, string>({
+    getBookById: builder.query<SingleBookResponse, string>({
       query: (id) => `/books/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Books', id }],
     }),
@@ -73,10 +79,10 @@ export const api = createApi({
       invalidatesTags: [{ type: 'Books', id: 'LIST' }],
     }),
     updateBook: builder.mutation<Book, Partial<Book> & Pick<Book, '_id'>>({
-      query: ({ _id, ...patch }) => ({
+      query: ({ _id, ...updateData }) => ({
         url: `/books/${_id}`,
-        method: 'PATCH',
-        body: patch,
+        method: 'PUT',
+        body: updateData,
       }),
       invalidatesTags: (_result, _error, { _id }) => [{ type: 'Books', id: _id }, { type: 'Books', id: 'LIST' }],
     }),
@@ -114,7 +120,7 @@ export const api = createApi({
       },
     }),
     getBorrowSummary: builder.query<BorrowSummaryItem[], void>({
-      query: () => '/borrows/summary',
+      query: () => '/borrow',
       providesTags: [{ type: 'Borrows', id: 'SUMMARY' }],
     }),
   }),
