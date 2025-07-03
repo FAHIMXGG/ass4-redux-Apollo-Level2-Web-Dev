@@ -14,6 +14,9 @@
 
 ### 1. Prepare Repository
 ```bash
+# Install Node.js types (if not already installed)
+npm install --save-dev @types/node
+
 # Ensure all changes are committed
 git add .
 git commit -m "Ready for deployment"
@@ -67,6 +70,7 @@ In Vercel Dashboard → Project Settings → Environment Variables:
    - Check TypeScript errors: `npm run type-check`
    - Check ESLint errors: `npm run lint`
    - Verify all dependencies are installed
+   - Install Node.js types: `npm install --save-dev @types/node`
 
 2. **API Calls Fail**
    - Verify `VITE_API_BASE_URL` environment variable
