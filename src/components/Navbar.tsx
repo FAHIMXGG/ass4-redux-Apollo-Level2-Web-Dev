@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import { BookOpen, Menu } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"

@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { Heart } from "lucide-react"
 

@@ -1,5 +1,3 @@
-"use client"
-
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Home, Search, ArrowLeft, BookX } from 'lucide-react'

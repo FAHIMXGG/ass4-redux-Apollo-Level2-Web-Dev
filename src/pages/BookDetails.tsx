@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -103,7 +101,7 @@ const BookDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-4xl mx-auto p-6">
+      <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
         <BookCardSkeleton />
       </div>
     );
@@ -111,15 +109,15 @@ const BookDetails: React.FC = () => {
 
   if (isError || !book) {
     return (
-      <div className="w-full max-w-4xl mx-auto p-6">
+      <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
         <Card>
           <CardContent className="pt-6 text-center">
-            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Book Not Found</h2>
-            <p className="text-muted-foreground mb-4">
+            <BookOpen className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">Book Not Found</h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4">
               The book you're looking for doesn't exist or has been removed.
             </p>
-            <Button onClick={() => navigate("/books")}>
+            <Button onClick={() => navigate("/books")} className="w-full sm:w-auto">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Books
             </Button>
@@ -130,26 +128,27 @@ const BookDetails: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 space-y-6">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header with Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <Button
           variant="ghost"
           onClick={() => navigate("/books")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 self-start"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Books
+          <span className="hidden xs:inline">Back to Books</span>
+          <span className="xs:hidden">Back</span>
         </Button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <Button variant="outline" size="sm" onClick={handleShare}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
+            <Share2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Share</span>
           </Button>
           <Button variant="outline" size="sm">
-            <Heart className="h-4 w-4 mr-2" />
-            Save
+            <Heart className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Save</span>
           </Button>
         </div>
       </div>
@@ -157,82 +156,82 @@ const BookDetails: React.FC = () => {
       {/* Main Book Information */}
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-3xl font-bold flex items-center gap-3">
-                <BookOpen className="h-8 w-8 text-primary" />
-                {book.title}
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-0">
+            <div className="space-y-2 flex-1 min-w-0">
+              <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-start sm:items-center gap-2 sm:gap-3 flex-wrap">
+                <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0 mt-1 sm:mt-0" />
+                <span className="break-words">{book.title}</span>
               </CardTitle>
-              <div className="flex items-center gap-2 text-lg text-muted-foreground">
-                <User className="h-5 w-5" />
-                <span>by {book.author}</span>
+              <div className="flex items-center gap-2 text-base sm:text-lg text-muted-foreground">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                <span className="break-words">by {book.author}</span>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
               <Badge
                 variant={book.available ? "default" : "destructive"}
-                className="text-sm px-3 py-1"
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1"
               >
                 {book.available ? "Available" : "Not Available"}
               </Badge>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 {book.copies} copies available
               </div>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Book Metadata */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Hash className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-start gap-3">
+                <Hash className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-1" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     ISBN
                   </p>
-                  <div className="flex items-center gap-2">
-                    <p className="font-mono">{book.isbn}</p>
-                    <Button variant="ghost" size="sm" onClick={copyISBN}>
-                      <Copy className="h-4 w-4" />
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="font-mono text-sm sm:text-base break-all">{book.isbn}</p>
+                    <Button variant="ghost" size="sm" onClick={copyISBN} className="flex-shrink-0">
+                      <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <BookMarked className="h-5 w-5 text-muted-foreground" />
+              <div className="flex items-start gap-3">
+                <BookMarked className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-1" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Genre
                   </p>
-                  <Badge variant="secondary" className="mt-1">
+                  <Badge variant="secondary" className="mt-1 text-xs sm:text-sm">
                     {book.genre.replace("_", " ")}
                   </Badge>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Copy className="h-5 w-5 text-muted-foreground" />
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-start gap-3">
+                <Copy className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-1" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Total Copies
                   </p>
-                  <p className="text-lg font-semibold">{book.copies}</p>
+                  <p className="text-base sm:text-lg font-semibold">{book.copies}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-muted-foreground" />
+              <div className="flex items-start gap-3">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-1" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Added to Library
                   </p>
-                  <p>
+                  <p className="text-sm sm:text-base">
                     {new Date(
                       book.createdAt || Date.now()
                     ).toLocaleDateString()}
@@ -248,10 +247,10 @@ const BookDetails: React.FC = () => {
               <Separator />
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold">Description</h3>
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                  <h3 className="text-base sm:text-lg font-semibold">Description</h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {book.description}
                 </p>
               </div>
@@ -261,11 +260,12 @@ const BookDetails: React.FC = () => {
           <Separator />
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="outline"
               size="lg"
               onClick={() => navigate(`/edit-book/${book._id}`)}
+              className="w-full sm:w-auto"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Book
@@ -273,25 +273,25 @@ const BookDetails: React.FC = () => {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="lg">
+                <Button variant="destructive" size="lg" className="w-full sm:w-auto">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Book
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="mx-4 max-w-md">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Book</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle className="text-base sm:text-lg">Delete Book</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm sm:text-base">
                     Are you sure you want to delete "{book.title}"? This action
                     cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+                  <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? "Deleting..." : "Delete Book"}
                   </AlertDialogAction>
@@ -303,23 +303,23 @@ const BookDetails: React.FC = () => {
       </Card>
 
       {/* Additional Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Availability Status */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Availability Status</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Availability Status</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Available:</span>
-                <span className="font-semibold">{book.copies}</span>
+                <span className="text-sm sm:text-base text-muted-foreground">Available:</span>
+                <span className="text-sm sm:text-base font-semibold">{book.copies}</span>
               </div>
               {book.copies > 0 && (
                 <Button
                   size="lg"
                   onClick={() => navigate(`/borrow/${book._id}`)}
-                  className="flex-1 w-full"
+                  className="w-full text-sm sm:text-base"
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
                   Borrow This Book
@@ -332,46 +332,46 @@ const BookDetails: React.FC = () => {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start text-sm sm:text-base"
                 onClick={() => navigate("/books")}
               >
-                <BookOpen className="h-4 w-4 mr-2" />
-                View All Books
+                <BookOpen className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">View All Books</span>
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start text-sm sm:text-base"
                 onClick={() => navigate(`/books?genre=${book.genre}`)}
               >
-                <BookMarked className="h-4 w-4 mr-2" />
-                More {book.genre.replace("_", " ")} Books
+                <BookMarked className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">More {book.genre.replace("_", " ")} Books</span>
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start text-sm sm:text-base"
                 onClick={() =>
                   navigate(`/books?author=${encodeURIComponent(book.author)}`)
                 }
               >
-                <User className="h-4 w-4 mr-2" />
-                More by {book.author}
+                <User className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">More by {book.author}</span>
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start text-sm sm:text-base"
                 onClick={handleShare}
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Share This Book
+                <ExternalLink className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">Share This Book</span>
               </Button>
             </div>
           </CardContent>

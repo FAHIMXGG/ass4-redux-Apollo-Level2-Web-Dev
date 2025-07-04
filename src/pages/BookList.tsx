@@ -136,8 +136,13 @@ const BookList: React.FC = () => {
                     <TableCell className="font-mono text-sm">{book.isbn}</TableCell>
                     <TableCell>{book.copies}</TableCell>
                     <TableCell>
-                      <Badge variant={book.available ? "default" : "secondary"}>
-                        {book.available ? "Available" : "Unavailable"} ({book.copies})
+                      <Badge className="flex justify-center" variant={book.available ? "default" : "secondary"}>
+                        <div>
+                          {book.available ? "Available" : "Unavailable"}
+                        </div> 
+                        <div>
+                          ({book.copies})
+                        </div>
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -192,7 +197,7 @@ const BookList: React.FC = () => {
                           <Link to={`/borrow/${book._id}`} onClick={(e) => !book.available && e.preventDefault()}>
                             <BookOpen className="h-4 w-4" />
                             <span className="sr-only">
-                              {!book.available ? "No copies available to borrow" : "Borrow book"}
+                              {!book.available ? "No copies available to borrow" : "Borrow book"}w
                             </span>
                           </Link>
                         </Button>
@@ -208,31 +213,33 @@ const BookList: React.FC = () => {
         {/* Pagination - Show different amounts of data */}
         <div className="mt-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground text-center sm:text-left">
               Showing {totalBooks} books (requested {itemsToShow})
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">Show:</span>
-              {paginationOptions.map((option) => (
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap md:block hidden">Show:</span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {paginationOptions.map((option) => (
+                  <Button
+                    key={option}
+                    variant={itemsToShow === option ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setItemsToShow(option)}
+                    className="min-w-[50px] text-xs sm:text-sm"
+                  >
+                    {option}
+                  </Button>
+                ))}
                 <Button
-                  key={option}
-                  variant={itemsToShow === option ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
-                  onClick={() => setItemsToShow(option)}
-                  className="min-w-[50px]"
+                  onClick={() => setItemsToShow(Math.min(itemsToShow + 10, 100))}
+                  className="whitespace-nowrap text-xs sm:text-sm"
+                  disabled={itemsToShow >= 100}
                 >
-                  {option}
+                  +10 More
                 </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setItemsToShow(Math.min(itemsToShow + 10, 100))}
-                className="ml-2"
-                disabled={itemsToShow >= 100}
-              >
-                +10 More
-              </Button>
+              </div>
             </div>
           </div>
         </div>
