@@ -97,7 +97,7 @@ const BorrowBook: React.FC = () => {
 
       await borrowBook(borrowData).unwrap()
       toast.success('Book borrowed successfully!')
-      navigate('/books')
+      navigate('/borrow-summary')
     } catch (err: unknown) {
       console.error('Error borrowing book:', err)
 

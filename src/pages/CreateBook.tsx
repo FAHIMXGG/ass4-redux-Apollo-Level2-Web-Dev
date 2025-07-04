@@ -34,7 +34,7 @@ const bookSchema = z.object({
     .transform(val => val.replace(/-/g, '')) // Remove hyphens for final submission/validation
     .refine(val => /^\d{10}(\d{3})?$/.test(val), 'Invalid ISBN format (must be 10 or 13 digits)'),
   description: z.string().optional(),
-  copies: z.number().int().min(0, 'Copies cannot be negative'),
+  copies: z.number().int().min(1, 'Total copies must be at least 1'),
 })
 
 // Type derived from Zod schema for form data
@@ -58,7 +58,7 @@ const CreateBook: React.FC = () => {
       genre: '',
       isbn: '',
       description: '',
-      copies: 0,
+      copies: 1,
     }
   })
 
@@ -228,7 +228,7 @@ const CreateBook: React.FC = () => {
               <Input
                 id="copies"
                 type="number"
-                min="0"
+                min="1"
                 {...register('copies', { valueAsNumber: true })}
               />
               {errors.copies && (

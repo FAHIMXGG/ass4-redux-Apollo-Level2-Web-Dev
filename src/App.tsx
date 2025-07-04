@@ -6,6 +6,7 @@ import CreateBook from "./pages/CreateBook";
 import BorrowSummary from "./pages/BorrowSummary";
 import EditBook from "./pages/EditBook";
 import BorrowBook from "./pages/BorrowBook";
+import BookDetails from "./pages/BookDetails";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<BookList />} />
           <Route path="/books" element={<BookList />} />
+          <Route path="/book/:id" element={<BookDetails />} />
           <Route path="/create-book" element={<CreateBook />} />
           <Route path="/borrow-summary" element={<BorrowSummary />} />
           <Route path="/edit-book/:id" element={<EditBook/>} />

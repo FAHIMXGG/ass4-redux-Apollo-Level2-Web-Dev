@@ -2,7 +2,7 @@ import type React from "react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import toast from "react-hot-toast"
-import { Edit, Trash2, BookOpen, Plus } from "lucide-react"
+import { Edit, Trash2, BookOpen, Plus, Eye } from "lucide-react"
 
 import { useGetBooksQuery, useDeleteBookMutation } from "../app/api/apiSlice"
 
@@ -38,7 +38,9 @@ interface Book {
 
 const BookList: React.FC = () => {
   const [itemsToShow, setItemsToShow] = useState(10)
-  const { data, isLoading, isError, error } = useGetBooksQuery({ limit: itemsToShow })
+  const { data, isLoading, isError, error } = useGetBooksQuery({ limit: itemsToShow }, {
+    pollingInterval: 3000,
+  })
   const [deleteBook] = useDeleteBookMutation()
 
   const handleDelete = async (id: string) => {
@@ -140,6 +142,13 @@ const BookList: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-center space-x-2">
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/book/${book._id}`}>
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">View book details</span>
+                          </Link>
+                        </Button>
+
                         <Button variant="ghost" size="sm" asChild>
                           <Link to={`/edit-book/${book._id}`}>
                             <Edit className="h-4 w-4" />
