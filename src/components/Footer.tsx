@@ -1,5 +1,5 @@
 import type React from "react"
-import { Heart, BookOpen, Code2, Mail, ExternalLink, Globe, Globe2Icon } from "lucide-react"
+import { Heart, BookOpen, Code2, ExternalLink, Globe2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
